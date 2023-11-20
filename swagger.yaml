@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: Calculation API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /calculate:
+    post:
+      summary: Perform a calculation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                num1:
+                  type: number
+                num2:
+                  type: number
+              required:
+                - num1
+                - num2
+      parameters:
+        - name: operator
+          in: header
+          schema:
+            type: string
+            enum:
+              - 'add'
+              - 'subtract'
+              - 'multiply'
+              - 'divide'
+      responses:
+        '200':
+          description: Successful calculation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: number
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequestResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+          examples:
+            NotANumber:
+             value:
+              error: "Invalid numbers provided"
+            DivisionByZero:
+             value:
+              error: "Division by zero is not allowed"
+            InvalidOperator:
+             value:
+              error: "Invalid operator"
+    NotFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
